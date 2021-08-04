@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <!-- Ram değerleri bölümünün gösterilmesi ve temizlenmesi -->
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Welcome to StressTester"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:textStyle="bold"
+            android:id="@+id/textView" />
+        <RelativeLayout
+            android:id="@+id/rlt_ram_show"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/textView"
+            >
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_margin="20dp"
+                android:layout_centerInParent="true"
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/totalram"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="5 Gb"
+                    android:textStyle="bold"
+                    android:textAppearance="?android:textAppearanceLarge"
+                    android:textColor="#000"
+                    android:textSize="11sp" />
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginEnd="39dp"
+                    android:layout_marginStart="39dp"
+                    android:background="@color/white"/>
+                <TextView
+                    android:id="@+id/txt_ram_used"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="1.5 Gb"
+                    android:textColor="#000"
+                    android:textStyle="bold"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </RelativeLayout>
+        <Button
+            android:id="@+id/startTest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/rlt_file_size"
+            android:layout_centerHorizontal="true"
+            android:text="Run Stress Test" />
+
+        <Button
+            android:id="@+id/resetTest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/startTest"
+            android:layout_marginTop="9dp"
+            android:layout_centerHorizontal="true"
+            android:text="Delete Files" />
+
+        <TextView
+            android:id="@+id/sdStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/infoButton"
+            android:layout_centerHorizontal="true"
+            android:layout_margin="30dp"
+            android:textStyle="bold"
+            android:text="Status" />
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Help/Info"
+            android:id="@+id/infoButton"
+            android:visibility="gone"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/resetTest" />
+
+        <RelativeLayout
+            android:id="@+id/rlt_file_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="10dp"
+            android:layout_below="@+id/rlt_ram_show"
+            >
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:background="@color/grey"
+                android:layout_marginBottom="6dp"
+                />
+            <TextView
+                android:id="@+id/txt_file_des_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:padding="4dp"
+                android:text="What % of ram memory should the files to be created use?"/>
+            <Spinner
+                android:id="@+id/spinner1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@+id/txt_file_des_count"
+                android:padding="2dp"
+                />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_below="@id/spinner1"
+                android:background="@color/grey"
+                />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rlt_file_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/rlt_file_count"
+            >
+            <TextView
+                android:id="@+id/txt_file_des"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:text="Select the size of each file to be created"/>
+            <RadioGroup
+                android:id="@+id/rd_gr_files"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/txt_file_des"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:layout_centerHorizontal="true">
+
+                <RadioButton
+                    android:id="@+id/radio_1kb"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="1 KB" />
+
+                <RadioButton
+                    android:id="@+id/radio_1mb"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="5 KB" />
+
+                <RadioButton
+                    android:id="@+id/radio_10mb"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="10 KB" />
+            </RadioGroup>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_below="@id/rd_gr_files"
+                android:background="@color/grey"
+                />
+        </RelativeLayout>
+    </RelativeLayout>
+
+</ScrollView>
