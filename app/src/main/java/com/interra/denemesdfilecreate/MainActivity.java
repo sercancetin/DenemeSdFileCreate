@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StatFs;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -50,24 +51,22 @@ public class MainActivity extends AppCompatActivity implements GetFinishFileStat
     private long readStart;
     private long readEnd;
 
-    Thread thread_file_created;
-    Thread thread_file_read;
-    boolean file_creat_status=false,file_read_status=false;
     RadioGroup rd_gr_files;
     RadioButton radio_1kb,radio_1mb,radio_10mb;
+    int radioBtn;
 
     SharedPreferenceHelper sharedPreferenceHelper;
 
     ProgressDialog progressDialogFileCreated;
 
     MemoryInfoHelper memoryInfoHelper;
-    ReadFileHelper readFileHelper;
+
     //spinner
     private Spinner spinner1;
     private String[] spinnerString={"%5","%10","%20","%40","%50","%60","%75","%90"};
     private ArrayAdapter<String> dataAdapterForSpinner;
 
-
+    CpuTempDetail cpuTempDetail;
     /**
      * The onCreate method instantiates the UI elements as well as starts the test once the button is pressed
      * @param savedInstanceState
@@ -89,26 +88,16 @@ public class MainActivity extends AppCompatActivity implements GetFinishFileStat
                 public void onClick(View v) {
 
                     if(fileNumber>0){
-                        FileCreatorHelper fc = new FileCreatorHelper(fileNumber,MainActivity.this,getApplicationContext());
-                        fc.setRadioValue((long)sharedPreferenceHelper.getEditorInt(FILE_SIZE));
                         progressDialogFileCreated.setMessage("Files are being created. Please wait. "+0+"/"+fileNumber);
-                        progressDialogFileCreated.setButton(ProgressDialog.BUTTON_POSITIVE, "Cancel", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                                if(!file_creat_status){
-                                    fc.setStop();
-                                }else if(!file_read_status){
-                                    readFileHelper.setReadStop();
-                                }
-                                sdStatus.setText("Test stopped");
-                            }
-                        });
                         progressDialogFileCreated.show();
+
                         sdStatus.setText("Test started");
                         createStart = System.currentTimeMillis();
-                        thread_file_created = new Thread(fc);
-                        thread_file_created.start();
+
+                        FileCreatorHelper fc = new FileCreatorHelper(fileNumber,MainActivity.this,getApplicationContext());
+                        fc.setRadioValue((long)sharedPreferenceHelper.getEditorInt(FILE_SIZE));
+                        Thread t1 = new Thread(fc);
+                        t1.start();
 
                     }else {
                         Toast.makeText(getApplicationContext(),"0 Files",Toast.LENGTH_SHORT).show();
@@ -134,6 +123,8 @@ public class MainActivity extends AppCompatActivity implements GetFinishFileStat
         radio_10mb = findViewById(R.id.radio_10mb);
         spinner1 = findViewById(R.id.spinner1);
 
+        //CpuDetail
+        cpuTempDetail = new CpuTempDetail(this);
         //progressDialog
         progressDialogFileCreated = new ProgressDialog(MainActivity.this);
         progressDialogFileCreated.setCancelable(false);
@@ -145,7 +136,8 @@ public class MainActivity extends AppCompatActivity implements GetFinishFileStat
         sharedPreferenceHelper = new SharedPreferenceHelper(this,FILE_SIZE);
         rd_gr_files.setOrientation(LinearLayout.HORIZONTAL);
 
-        dataAdapterForSpinner = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,spinnerString);
+
+        dataAdapterForSpinner = new ArrayAdapter<String>(this,R.layout.spinner_item,spinnerString);
         spinner1.setAdapter(dataAdapterForSpinner);
         spinner1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
@@ -176,7 +168,7 @@ public class MainActivity extends AppCompatActivity implements GetFinishFileStat
                     fileNumber = calculateNumFiles(0.00000090,radiBtnMb());
                     Toast.makeText(getApplicationContext(),spinnerString[7]+" "+fileNumber+" files",Toast.LENGTH_SHORT).show();
                 }
-                //System.out.println(" >> total extarnal memory>>"+ memoryInfoHelper.formatFileSize(getAvailableInternalMemorySize())+" number of files to be created "+fileNumber);
+                System.out.println(" >> total extarnal memory>>"+ memoryInfoHelper.formatFileSize(getAvailableInternalMemorySize())+" number of files to be created "+fileNumber);
             }
 
             @Override
@@ -203,6 +195,7 @@ public class MainActivity extends AppCompatActivity implements GetFinishFileStat
                             Toast.LENGTH_SHORT).show();
                 }
                 fileNumber = calculateNumFiles(radioBtnSpinnerChoose(),radiBtnMb());
+                System.out.println("filenumberradio>>"+fileNumber);
             }
         });
         getRadioBtnEnabled();
@@ -226,16 +219,16 @@ public class MainActivity extends AppCompatActivity implements GetFinishFileStat
         if(sharedPreferenceHelper.getEditorInt(FILE_SIZE)==1024){
             return 0.001;
         } else if(sharedPreferenceHelper.getEditorInt(FILE_SIZE)==1024*5){
-            return 0.005;
-        } else if(sharedPreferenceHelper.getEditorInt(FILE_SIZE)==1024*10){
             return 0.01;
+        } else if(sharedPreferenceHelper.getEditorInt(FILE_SIZE)==1024*10){
+            return 0.005;
         } else {
             return 0.001;
         }
     }
     private double radioBtnSpinnerChoose(){
         if(spinner1.getSelectedItem().toString().equals(spinnerString[0])){
-            return 0.00000005;//%5
+            return 0.00000005;
         }else if(spinner1.getSelectedItem().toString().equals(spinnerString[1])){
             return 0.00000010;
         }else if(spinner1.getSelectedItem().toString().equals(spinnerString[2])){
@@ -421,8 +414,8 @@ public class MainActivity extends AppCompatActivity implements GetFinishFileStat
     }
 
     /*
-      *getFileReadTime() takes seconds to read files
-       * @returns the number of seconds it takes for files to be read
+     *getFileReadTime() takes seconds to read files
+     * @returns the number of seconds it takes for files to be read
      */
     public double getFileReadTime(){
         return (readEnd - readStart) / 1000;
@@ -432,13 +425,12 @@ public class MainActivity extends AppCompatActivity implements GetFinishFileStat
     @Override
     public void finishFileCreater(boolean a) {
         if(a){
-            file_creat_status = true;
             createEnd = System.currentTimeMillis();
             readStart = System.currentTimeMillis();
 
-            readFileHelper = new ReadFileHelper(this, this);
-            thread_file_read = new Thread(readFileHelper);
-            thread_file_read.start();
+            ReadFileHelper readFileHelper = new ReadFileHelper(this, this);
+            Thread thread = new Thread(readFileHelper);
+            thread.start();
 
         }
     }
@@ -474,8 +466,8 @@ public class MainActivity extends AppCompatActivity implements GetFinishFileStat
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            txt_ram_used.setText("Free Ram \n"+memoryInfoHelper.formatFileSize(memoryInfoHelper.AvailableRAM(getApplicationContext())));
-                            totalram.setText("İnternal= "+memoryInfoHelper.formatFileSize(getAvailableInternalMemorySize()));
+                            txt_ram_used.setText("Free Ram: "+memoryInfoHelper.formatFileSize(memoryInfoHelper.AvailableRAM(getApplicationContext()))+" / Total Ram: "+memoryInfoHelper.getTotalRAM());
+                            totalram.setText("Free Stroge: "+memoryInfoHelper.formatFileSize(getAvailableInternalMemorySize())+" / Total Stroge: "+memoryInfoHelper.getTotalInternalMemorySize());
                         }
                     });
                 } catch (Exception e) {
@@ -499,7 +491,6 @@ public class MainActivity extends AppCompatActivity implements GetFinishFileStat
     @Override
     public void finishFileReader(boolean a) {
         if(a){
-            file_read_status = true;
             progressDialogFileCreated.dismiss();
             readEnd = System.currentTimeMillis();
             deleteFiles();

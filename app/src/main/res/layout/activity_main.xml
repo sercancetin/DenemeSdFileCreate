@@ -4,6 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bg_page"
+    android:padding="20dp"
     tools:context=".MainActivity">
 
     <!-- Ram değerleri bölümünün gösterilmesi ve temizlenmesi -->
@@ -13,13 +15,20 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         >
+        <include
+            android:id="@+id/inc_cpu_detail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            layout="@layout/cpu_detail"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Welcome to StressTester"
-            android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
             android:textStyle="bold"
+            android:textColor="@color/needle2"
+            android:textSize="20sp"
+            android:layout_below="@+id/inc_cpu_detail"
             android:id="@+id/textView" />
         <RelativeLayout
             android:id="@+id/rlt_ram_show"
@@ -42,7 +51,7 @@
                     android:text="5 Gb"
                     android:textStyle="bold"
                     android:textAppearance="?android:textAppearanceLarge"
-                    android:textColor="#000"
+                    android:textColor="@color/needle2"
                     android:textSize="11sp" />
                 <View
                     android:layout_width="match_parent"
@@ -56,7 +65,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:text="1.5 Gb"
-                    android:textColor="#000"
+                    android:textColor="@color/needle2"
                     android:textStyle="bold"
                     android:textSize="14sp" />
             </LinearLayout>
@@ -86,6 +95,7 @@
             android:layout_centerHorizontal="true"
             android:layout_margin="30dp"
             android:textStyle="bold"
+            android:textColor="@color/needle2"
             android:text="Status" />
 
         <Button
@@ -118,12 +128,14 @@
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:padding="4dp"
+                android:textColor="@color/needle2"
                 android:text="What % of ram memory should the files to be created use?"/>
             <Spinner
                 android:id="@+id/spinner1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
+                android:gravity="center"
                 android:layout_below="@+id/txt_file_des_count"
                 android:padding="2dp"
                 />
@@ -146,6 +158,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
+                android:textColor="@color/needle2"
                 android:text="Select the size of each file to be created"/>
             <RadioGroup
                 android:id="@+id/rd_gr_files"
@@ -161,12 +174,14 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
+                    android:textColor="@color/needle2"
                     android:text="1 KB" />
 
                 <RadioButton
                     android:id="@+id/radio_1mb"
                     android:layout_width="0dp"
                     android:layout_weight="1"
+                    android:textColor="@color/needle2"
                     android:layout_height="wrap_content"
                     android:text="5 KB" />
 
@@ -174,6 +189,7 @@
                     android:id="@+id/radio_10mb"
                     android:layout_width="0dp"
                     android:layout_weight="1"
+                    android:textColor="@color/needle2"
                     android:layout_height="wrap_content"
                     android:text="10 KB" />
             </RadioGroup>

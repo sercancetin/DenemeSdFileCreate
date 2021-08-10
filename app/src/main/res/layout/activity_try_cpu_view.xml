@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:context=".TryCpuView">
+
+    <com.github.mikephil.charting.charts.LineChart
+        android:id="@+id/chart1"
+        android:layout_width="match_parent"
+        android:layout_height="267dp"
+        android:layout_margin="20dp"
+        android:padding="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/chart1">
+
+        <TextView
+            android:id="@+id/txt_cpu_frequency"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="cpu: 1234 mhz"
+            android:textColor="@color/needle2"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.05"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.022" />
+
+        <TextView
+            android:id="@+id/txt_passing_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="passing time: 00:04:39"
+            android:textColor="@color/needle2"
+            app:layout_constraintStart_toStartOf="@+id/txt_cpu_frequency"
+            app:layout_constraintTop_toBottomOf="@+id/txt_cpu_frequency" />
+
+        <TextView
+            android:id="@+id/txt_cores"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="cores: 4"
+            android:textColor="@color/needle2"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.949"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.047" />
+
+        <TextView
+            android:id="@+id/txt_max_freq"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Max freq:"
+            android:textColor="@color/needle2"
+            app:layout_constraintEnd_toEndOf="@+id/txt_cores"
+            app:layout_constraintTop_toBottomOf="@+id/txt_cores" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

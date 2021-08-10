@@ -4,8 +4,11 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.os.Build;
+import android.os.Environment;
+import android.os.StatFs;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -29,7 +32,7 @@ public class MemoryInfoHelper {
         update();
     }
 
-    public static MemoryInfoHelper get(Context context) {
+    public MemoryInfoHelper get(Context context) {
         if (sInstance == null) {
             sInstance = new MemoryInfoHelper(context);
         }
@@ -210,5 +213,11 @@ public class MemoryInfoHelper {
         }
 
         return hrSize;
+    }
+
+    public String getTotalInternalMemorySize() {
+        StatFs stat = new StatFs(Environment.getExternalStorageDirectory().getPath());
+        long bytesAvailable = (long)stat.getBlockSize() *(long)stat.getBlockCount();
+        return formatFileSize(bytesAvailable);
     }
 }
