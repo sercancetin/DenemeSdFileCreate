@@ -214,7 +214,21 @@ public class MemoryInfoHelper {
 
         return hrSize;
     }
+    public long getAvailableInternalMemorySize() {
+        File path = Environment.getDataDirectory();
+        StatFs stat = new StatFs(path.getPath());
+        long blockSize = 0;
+        long availableBlocks;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            blockSize = stat.getBlockSizeLong();
+            availableBlocks = stat.getAvailableBlocksLong();
+        }else {
+            blockSize = stat.getBlockSize();
+            availableBlocks = stat.getAvailableBlocks();
+        }
 
+        return (availableBlocks * blockSize);
+    }
     public String getTotalInternalMemorySize() {
         StatFs stat = new StatFs(Environment.getExternalStorageDirectory().getPath());
         long bytesAvailable = (long)stat.getBlockSize() *(long)stat.getBlockCount();

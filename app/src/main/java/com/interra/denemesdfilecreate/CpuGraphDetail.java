@@ -1,13 +1,12 @@
 package com.interra.denemesdfilecreate;
 
-import androidx.appcompat.app.AppCompatActivity;
-
+import android.app.Activity;
+import android.content.Context;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
 
@@ -28,7 +27,10 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class TryCpuView extends AppCompatActivity {
+import static android.content.Context.SENSOR_SERVICE;
+
+public class CpuGraphDetail {
+    Context context;
     final static int DURATION = 600;
     ArrayList<Entry> yVals;
     long currentTime = 0;
@@ -36,9 +38,10 @@ public class TryCpuView extends AppCompatActivity {
     private boolean isThreadRun = true;
     boolean isChart = false;
     LineChart mChart;
-    static float avgCpuValue = 0;
-    static float maxAvgCpuValue = 0;
+    float avgCpuValue = 0;
+    float maxAvgCpuValue = 0;
     boolean keepReading = true;
+    boolean keepTime = false;
     String pattern = "([0-9]{6,7})";
     Pattern pat = Pattern.compile(pattern);
     TextView txtCpuFrequency, txtPassingTime, txtMaxFreq, txtCores;
@@ -46,27 +49,33 @@ public class TryCpuView extends AppCompatActivity {
     int getCores = 0;
     HashMap<Integer, String[]> hashMap;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_try_cpu_view);
-
+    public CpuGraphDetail(Context context) {
+        this.context = context;
+        init();
+    }
+    private void init(){
+        txtCpuFrequency = ((Activity)context).findViewById(R.id.txt_cpu_frequency);
+        txtPassingTime = ((Activity)context).findViewById(R.id.txt_passing_time);
+        txtCores = ((Activity)context).findViewById(R.id.txt_cores);
+        txtMaxFreq = ((Activity)context).findViewById(R.id.txt_max_freq);
+        getCores = getNumCores();
+        txtCores.setText("Total cores: " + getCores);
         // Get current time
         start = System.currentTimeMillis();
 
-        SensorManager mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        SensorManager mSensorManager = (SensorManager) ((Activity)context).getSystemService(SENSOR_SERVICE);
         Sensor TempSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
         mSensorManager.registerListener(temperatureSensor, TempSensor, SensorManager.SENSOR_DELAY_NORMAL);
-        init();
 
         hashMap = getCpuPath(getCores);
+
         Thread thread = new Thread() {
             @Override
             public void run() {
                 try {
                     while (keepReading) {
                         Thread.sleep(DURATION);
-                        runOnUiThread(new Runnable() {
+                        ((Activity)context).runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 if (!isChart) {
@@ -80,7 +89,7 @@ public class TryCpuView extends AppCompatActivity {
                                         txtMaxFreq.setText("Max avg freq: " + (int)maxAvgCpuValue+ " Mhz");
                                     }
                                     updateData(avgCpuValue, 0);
-                                    Log.d("authorize", "" + avgCpuValue);
+                                    //Log.d("authorize", "" + avgCpuValue);
                                     txtCpuFrequency.setText("Current avg freg: " + (int)avgCpuValue + " MHZ");
                                 } catch (Exception e) {
                                     e.printStackTrace();
@@ -94,17 +103,6 @@ public class TryCpuView extends AppCompatActivity {
             }
         };
         thread.start();
-
-    }
-
-    private void init() {
-        txtCpuFrequency = findViewById(R.id.txt_cpu_frequency);
-        txtPassingTime = findViewById(R.id.txt_passing_time);
-        txtCores = findViewById(R.id.txt_cores);
-        txtMaxFreq = findViewById(R.id.txt_max_freq);
-        getCores = getNumCores();
-        txtCores.setText("Total cores: " + getCores);
-        timeThread();
     }
 
     private void initChart() {
@@ -116,7 +114,7 @@ public class TryCpuView extends AppCompatActivity {
             }
         } else {
             currentTime = new Date().getTime();
-            mChart = findViewById(R.id.chart1);
+            mChart = ((Activity)context).findViewById(R.id.chart1);
             mChart.setViewPortOffsets(50, 20, 5, 60);
             // no description text
             //mChart.setDescription("a");
@@ -130,18 +128,18 @@ public class TryCpuView extends AppCompatActivity {
             //mChart.setDrawGridBackground(false);
             //mChart.setMaxHighlightDistance(400)
             mChart.setEnabled(false);
-            mChart.setBackgroundColor(getResources().getColor(R.color.black));
+            mChart.setBackgroundColor(((Activity)context).getResources().getColor(R.color.black));
             XAxis x = mChart.getXAxis();
             x.setLabelCount(8, false);
             x.setEnabled(true);
             //x.setTypeface(tf);
-            x.setTextColor(getResources().getColor(R.color.needle2));
+            x.setTextColor(((Activity)context).getResources().getColor(R.color.needle2));
             x.setPosition(XAxis.XAxisPosition.BOTTOM);
             x.setDrawGridLines(true);
             x.setAxisLineColor(Color.GREEN);
             YAxis y = mChart.getAxisLeft();
             y.setLabelCount(6, false);
-            y.setTextColor(getResources().getColor(R.color.needle2));
+            y.setTextColor(((Activity)context).getResources().getColor(R.color.needle2));
             //y.setTypeface(tf);
             y.setPosition(YAxis.YAxisLabelPosition.INSIDE_CHART);
             y.setDrawGridLines(false);
@@ -191,7 +189,9 @@ public class TryCpuView extends AppCompatActivity {
         }
 
     }
-
+    public void graphStatus(boolean status){
+        keepReading = status;
+    }
     private void updateData(float val, long time) {
         if (mChart == null) {
             return;
@@ -319,16 +319,21 @@ public class TryCpuView extends AppCompatActivity {
             txtMaxFreq.setText("Max freq: " + formatCPUFreq(ReadCPU0(maxFreq)) + " Mhz");
         } else txtMaxFreq.setText("N/A");
     }
-
+    public void timeStart(){
+        timeThread();
+    }
+    public void timeReset(){
+        start = System.currentTimeMillis();
+    }
     private void timeThread(){
         Thread timeThread = new Thread(){
             @Override
             public void run() {
                 super.run();
                 try {
-                    while (keepReading){
+                    while (keepTime){
                         Thread.sleep(1000);
-                        runOnUiThread(new Runnable() {
+                        ((Activity)context).runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 countTimer();
@@ -349,8 +354,8 @@ public class TryCpuView extends AppCompatActivity {
         int elapsedTimeMin = ((int)(elapsedTimeMillis / (60 * 1000F)))%60;
         // Get elapsed time in hours
         int elapsedTimeHour = ((int)(elapsedTimeMillis / (60 * 60 * 1000F)))%60;
-
-        txtPassingTime.setText("Elapsed: "+timeValue(elapsedTimeHour)+":"+timeValue(elapsedTimeMin)+":"+timeValue(elapsedTimeSec));
+        ((Activity)context).runOnUiThread(() -> txtPassingTime.setText("Elapsed: "+timeValue(elapsedTimeHour)+":"+timeValue(elapsedTimeMin)+":"+timeValue(elapsedTimeSec)));
+        //txtPassingTime.setText("Elapsed: "+timeValue(elapsedTimeHour)+":"+timeValue(elapsedTimeMin)+":"+timeValue(elapsedTimeSec));
     }
     private String timeValue(int time){
         return time<10?"0"+time:""+time;
